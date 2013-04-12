@@ -68,7 +68,8 @@ def clouds(args):
 def images(args):
     Cloud = get_cloud(args.cloudname)
 
-    images = Cloud().list_images()
+    images = Cloud().list_images(keyword=args.keyword)
+
     print len(images), "images available on", Cloud.PROVIDER_NAME
 
     if not images:
@@ -108,10 +109,10 @@ def start(args):
     print get_cloud(args.cloudname)().deploy(args.imageid)
 
 def reboot(args):
-    print get_cloud(args.cloudname)().reboot(args.imageid)
+    print get_cloud(args.cloudname)().reboot(args.vmid)
 
 def delete(args):
-    print get_cloud(args.cloudname)().shutdown(args.imageid)
+    print get_cloud(args.cloudname)().shutdown(args.vmid)
 
 def main():
     arger = argparse.ArgumentParser(
@@ -138,6 +139,7 @@ def main():
     parser_images = subparsers.add_parser("images", 
         help="list available images")
     parser_images.add_argument("cloudname", choices=supported_clouds())
+    parser_images.add_argument("--keyword", default='')
     parser_images.set_defaults(func=images)
     
     # start

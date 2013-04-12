@@ -227,8 +227,10 @@ class BaseCloud(object):
     def list_nodes(self):
         return [ node2dict(node) for node in self.driver.list_nodes() ]
 
-    def list_images(self, limit=20):
-        return self.driver.list_images()[:limit]
+    def list_images(self, limit=20, keyword=''):
+        images = [ image for image in self.driver.list_images() 
+            if (keyword.lower() in image.name.lower()) or not keyword ]
+        return images[:limit]
 
     def deploy(self, size_idx=0, location_idx=0, name='test'):
         raise NotImplementedError()

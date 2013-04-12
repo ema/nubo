@@ -23,9 +23,12 @@ class AmazonEC2(BaseCloud):
             # This key has not been uploaded yet
             return 
 
-    def list_images(self, limit=20):
-        return [ image for image in self.driver.list_images() 
-            if 'ami-' in image.id ][:limit]
+    def list_images(self, limit=20, keyword=''):
+        ami_images = [ image for image in self.driver.list_images() 
+            if 'ami-' in image.id ]
+
+        return [ image for image in ami_images 
+            if (keyword.lower() in image.name.lower()) or not keyword ][:limit]
 
     def deploy(self, image_id, size_idx=0, location_idx=0, name='test'):
         # Uploading SSH key if necessary
