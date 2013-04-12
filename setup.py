@@ -15,8 +15,12 @@ setup(
     author_email='ema@linux.it',
     description='Virtual Machine deployments on multiple cloud providers',
     long_description=__doc__,
-    #py_modules=[],
-    install_requires=[ 'setuptools', 'apache-libcloud', 'paramiko', ],
+    install_requires=[ 
+        'setuptools', 
+        'apache-libcloud', 
+        'paramiko', 
+        'texttable' 
+    ],
     packages=['nubo'],
     scripts=['scripts/nubo'],
     classifiers=[
