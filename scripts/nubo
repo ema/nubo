@@ -1,0 +1,174 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""     
+    nubo
+    ====
+
+    CLI interface to multiple cloud providers.
+
+    :copyright: (C) 2013 by Emanuele Rocca.
+"""
+
+import sys
+import argparse
+import readline
+
+from nubo.config import write_config
+from nubo.clouds import supported_clouds
+
+from texttable import Texttable
+
+def rlinput(prompt, prefill=''):
+    readline.set_startup_hook(lambda: readline.insert_text(prefill))
+    try:
+        return raw_input(prompt)
+    except (KeyboardInterrupt, EOFError):
+        print
+        sys.exit(0)
+    finally:
+        readline.set_startup_hook()
+
+def config(args):
+    sclouds = supported_clouds()
+
+    for idx, cloud in enumerate(sclouds):
+        print 1 + idx, cloud.PROVIDER_NAME
+
+    try:
+        cloudidx = int(rlinput(
+          "Please choose the cloud provider you want to setup [1-%d] " % 
+            len(sclouds)))
+
+        Cloud = sclouds[cloudidx - 1]
+    except (IndexError, ValueError):
+        return config(args)
+
+    values = {}
+    for what in Cloud.NEEDED_PARAMS:
+        values[what] = rlinput('Please provide your API %s: ' % what)
+
+    if Cloud.test_conn(**values):
+        write_config({ Cloud.PROVIDER_NAME: values })
+        print Cloud.PROVIDER_NAME, "cloud configured properly" 
+        return
+    else:
+        print "\nE: Invalid Credentials\n"
+        return config(args)
+
+def clouds(args):
+    for cl in supported_clouds():
+        print cl.PROVIDER_NAME
+
+def images(args):
+    for Cloud in supported_clouds():
+        images = Cloud().list_images()
+        print len(images), "images available on", Cloud.PROVIDER_NAME
+
+        if not images:
+            continue
+
+        table = Texttable()
+        table.set_deco(Texttable.HEADER)
+        rows = [ [ 'id', 'name', ] ]
+        for img in images:
+            rows.append([ img.id, img.name ])
+
+        table.add_rows(rows)
+        print table.draw()
+
+def list_(args):
+    for Cloud in supported_clouds():
+        nodes = Cloud().list_nodes()
+        print len(nodes), "VMs running on", Cloud.PROVIDER_NAME
+
+        if not nodes:
+            continue
+
+        table = Texttable()
+        table.set_deco(Texttable.HEADER)
+        rows = [ [ 'id', 'name', 'state', 'ip' ] ]
+        for node in nodes:
+            rows.append([ node['id'], 
+                          node['name'], 
+                          node['state'], 
+                          ', '.join(node['public_ips']) ])
+
+        table.add_rows(rows)
+        print table.draw()
+
+def start(args):
+    Cloud = [ cl for cl in supported_clouds() 
+        if cl.PROVIDER_NAME == args.cloudname ][0]
+
+    cloud = Cloud()
+    print cloud.deploy(args.imageid)
+
+def reboot(args):
+    Cloud = [ cl for cl in supported_clouds() 
+        if cl.PROVIDER_NAME == args.cloudname ][0]
+
+    print Cloud().reboot(args.vmid)
+
+def delete(args):
+    Cloud = [ cl for cl in supported_clouds() 
+        if cl.PROVIDER_NAME == args.cloudname ][0]
+
+    print Cloud().shutdown(args.vmid)
+
+def main():
+    arger = argparse.ArgumentParser(
+        #usage='%(prog)s [options]',
+        description='Start Virtual Machines on multiple clouds')
+
+    subparsers = arger.add_subparsers()
+    
+    # config
+    parser_config = subparsers.add_parser("config", help="set your cloud credentials")
+    parser_config.set_defaults(func=config)
+
+    # list
+    parser_list = subparsers.add_parser("list", help="list running VMs")
+    parser_list.set_defaults(func=list_)
+
+    # clouds
+    parser_clouds = subparsers.add_parser("clouds", 
+        help="list available clouds")
+    parser_clouds.set_defaults(func=clouds)
+
+    # images
+    parser_images = subparsers.add_parser("images", 
+        help="list available images")
+    parser_images.set_defaults(func=images)
+    
+    supported = [ cl.PROVIDER_NAME for cl in supported_clouds() ]
+
+    # start
+    parser_start = subparsers.add_parser("start", help="start a new VM")
+    parser_start.add_argument("cloudname", choices=supported)
+    parser_start.add_argument("imageid")
+    parser_start.set_defaults(func=start)
+
+    # reboot
+    parser_reboot = subparsers.add_parser("reboot", help="reboot a given VM")
+    parser_reboot.add_argument("cloudname", choices=supported)
+    parser_reboot.add_argument("vmid")
+    parser_reboot.set_defaults(func=reboot)
+
+    # delete
+    parser_delete = subparsers.add_parser("delete", help="delete a given VM")
+    parser_delete.add_argument("cloudname", choices=supported)
+    parser_delete.add_argument("vmid")
+    parser_delete.set_defaults(func=delete)
+
+    if len(sys.argv) == 1:
+        # At least one argument is expected
+        arger.print_help()
+        return
+
+    # We got (at least) one argument
+    opts = arger.parse_args()
+    opts.func(opts)
+
+if __name__ == "__main__":
+    main()

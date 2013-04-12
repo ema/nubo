@@ -1,0 +1,7 @@
+apache-libcloud==0.12.3
+argparse==1.2.1
+distribute==0.6.24
+paramiko==1.10.1
+pycrypto==2.6
+texttable==0.8.1
+wsgiref==0.1.2
