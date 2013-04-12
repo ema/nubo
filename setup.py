@@ -21,7 +21,7 @@ setup(
         'paramiko', 
         'texttable' 
     ],
-    packages=['nubo'],
+    packages=['nubo', 'nubo.clouds'],
     scripts=['scripts/nubo'],
     classifiers=[
         'Development Status :: 4 - Beta',

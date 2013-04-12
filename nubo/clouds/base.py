@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """     
-    nubo.clouds
-    ===========
+    nubo.clouds.base
+    ================
 
     Support deployments on multiple cloud providers.
 
@@ -14,16 +14,30 @@ import socket
 import logging
 import hashlib
 
+from importlib import import_module
+
 from os import getenv
 from os.path import join
 
 from libcloud.compute.types import Provider, InvalidCredsError
 from libcloud.compute.providers import get_driver
-from libcloud.compute.deployment import MultiStepDeployment
-from libcloud.compute.deployment import ScriptDeployment, SSHKeyDeployment
 
-from remote import RemoteHost
-from config import read_config
+from nubo.config import read_config
+from nubo.remote import RemoteHost
+
+CLOUDS_MAPPING = {
+    'EC2_US_EAST':        'nubo.clouds.ec2.AmazonEC2', 
+    'EC2_US_WEST':        'nubo.clouds.ec2.AmazonEC2', 
+    'EC2_US_WEST_OREGON': 'nubo.clouds.ec2.AmazonEC2', 
+    'EC2_AP_SOUTHEAST':   'nubo.clouds.ec2.AmazonEC2', 
+    'EC2_AP_SOUTHEAST2':  'nubo.clouds.ec2.AmazonEC2', 
+    'EC2_AP_NORTHEAST':   'nubo.clouds.ec2.AmazonEC2', 
+    'EC2_EU_WEST':        'nubo.clouds.ec2.AmazonEC2',
+    'RACKSPACE':          'nubo.clouds.rackspace.Rackspace',
+    'RACKSPACE_UK':       'nubo.clouds.rackspace.Rackspace',
+    'DIGITAL_OCEAN':      'nubo.clouds.digitalocean.DigitalOcean',
+    'OPENNEBULA':         'nubo.clouds.opennebula.OpenNebula',
+}
 
 NODE_STATES = {
     0: 'RUNNING',
@@ -60,24 +74,28 @@ def node2dict(node):
     return values
 
 def supported_clouds():
-    supported = []
+    return CLOUDS_MAPPING.keys()
 
-    for candidate in globals().values():
-        if type(candidate) is not type:
-            # We only want classes
-            continue
-    
-        if not issubclass(candidate, BaseCloud):
-            # Sub-classes of BaseCloud
-            continue
+def get_cloud(cloud_name):
+    """Return the class representing the given provider.
 
-        if candidate is BaseCloud:
-            # But not BaseCloud itself
-            continue
+    get_cloud('OPENNEBULA') -> <class 'nubo.clouds.opennebula.OpenNebula'>
+    """
+    # fullname = [ 'nubo', 'clouds', 'ec2', 'EC2Cloud' ]
+    fullname = CLOUDS_MAPPING[cloud_name].split('.')
 
-        supported.append(candidate)
+    # classname = 'EC2Cloud'
+    classname = fullname.pop()
 
-    return supported
+    # module_name = 'nubo.clouds.ec2'
+    module_name = '.'.join(fullname)
+
+    module = import_module(module_name)
+
+    cloudclass = getattr(module, classname)
+    cloudclass.PROVIDER_NAME = cloud_name
+
+    return cloudclass
 
 class BaseCloud(object):
 
@@ -91,10 +109,10 @@ class BaseCloud(object):
     NEEDED_PARAMS = [ 'key', 'secret' ]
 
     @classmethod
-    def test_conn(cls, key, secret):
+    def test_conn(cls, **params):
         provider = getattr(Provider, cls.PROVIDER_NAME)
         DriverClass = get_driver(provider)
-        driver = DriverClass(key, secret)
+        driver = DriverClass(**params)
         try:
             return type(driver.list_nodes()) == list
         except InvalidCredsError:
@@ -120,7 +138,8 @@ class BaseCloud(object):
             raise Exception, "Unknown cloud %s" % PROVIDER_NAME
 
         DriverClass = get_driver(provider)
-        self.driver = DriverClass(**AVAILABLE_CLOUDS[self.PROVIDER_NAME])
+        self.driver = DriverClass(
+            **AVAILABLE_CLOUDS[CLOUDS_MAPPING[self.PROVIDER_NAME]])
 
     def __wait_for_node(self, node_id):
         attempts = self.MAX_ATTEMPTS
@@ -213,140 +232,3 @@ class BaseCloud(object):
 
     def deploy(self, size_idx=0, location_idx=0, name='test'):
         raise NotImplementedError()
-
-class Rackspace(BaseCloud):
-
-    PROVIDER_NAME = 'RACKSPACE'
-
-    def deploy(self, image_id, size_idx=0, location_idx=0, name='test'):
-        sd = SSHKeyDeployment(open(self.ssh_public_key).read())
-        script = ScriptDeployment("/bin/true") # NOP
-        msd = MultiStepDeployment([sd, script])
-
-        class Image:
-            id = image_id
-
-        size = self.driver.list_sizes()[size_idx]
-        location = self.driver.list_locations()[location_idx]
-
-        return node2dict(self.driver.deploy_node(name=name, image=Image, 
-            size=size, location=location, deploy=msd))
-
-class DigitalOcean(BaseCloud):
-
-    PROVIDER_NAME = 'DIGITAL_OCEAN'
-
-    def get_ssh_key_id(self):
-        """Return uploaded key id if this SSH public key has been already
-        submitted to the cloud provider. None otherwise."""
-        uploaded_key = [ key.id for key in self.driver.ex_list_ssh_keys() 
-            if key.name == self.ssh_key_name ]
-
-        if uploaded_key:
-            return str(uploaded_key[0])
-        
-    def deploy(self, image_id, size_idx=0, location_idx=0, name='test'):
-        key_id = self.get_ssh_key_id()
-
-        if not key_id:
-            uploaded_key = self.driver.ex_create_ssh_key(self.ssh_key_name, 
-                open(self.ssh_public_key).read())
-
-            key_id = str(uploaded_key.id)
-
-        class Image:
-            id = image_id
-
-        size = self.driver.list_sizes()[size_idx]
-        location = self.driver.list_locations()[location_idx]
-        
-        return self.startup({ 
-            'size': size, 'image': Image, 'name': name,
-            'location': location, 'ex_ssh_key_ids': [ key_id ]
-        })
-
-class EC2Cloud(BaseCloud):
-
-    PROVIDER_NAME = 'EC2_US_EAST'
-
-    def get_ssh_key_id(self):
-        try:
-            key = self.driver.ex_describe_keypairs(self.ssh_key_name)
-            return key['keyName']
-        except Exception:
-            # This key has not been uploaded yet
-            return 
-
-    def list_images(self, limit=20):
-        return [ image for image in self.driver.list_images() 
-            if 'ami-' in image.id ][:limit]
-
-    def deploy(self, image_id, size_idx=0, location_idx=0, name='test'):
-        # Uploading SSH key if necessary
-        key_id = self.get_ssh_key_id()
-
-        if not key_id:
-            key = self.driver.ex_import_keypair(self.ssh_key_name,
-                self.ssh_public_key)
-
-            key_id = key['keyName']
-
-        # Creating security group if necessary
-        if __name__ not in self.driver.ex_list_security_groups():
-            self.driver.ex_create_security_group(__name__, "nubolib's SG")
-            self.driver.ex_authorize_security_group_permissive(__name__)
-
-        class Image:
-            id = image_id
-
-        size = self.driver.list_sizes()[size_idx]
-        location = self.driver.list_locations()[location_idx]
-        
-        return self.startup({ 
-            'size': size, 'image': Image, 'name': name,
-            'location': location, 'ex_keyname': key_id,
-            'ex_securitygroup': __name__
-        })
-
-class OpenNebula(BaseCloud):
-    
-    PROVIDER_NAME = 'OPENNEBULA'
-
-    def __init__(self, ssh_private_key=None):
-        self.network_id = AVAILABLE_CLOUDS['OPENNEBULA'].pop('network_id')
-        BaseCloud.__init__(self, ssh_private_key)
-
-    def deploy(self, image_id, size_idx=0, location_idx=0, name='test'):
-        script = """#!/bin/bash
-dhclient eth0
-
-# assiging IP
-. /mnt/context.sh
-ip addr add dev eth0 $IP_PUBLIC
-
-# removing IP obtained from DHCP
-ip addr del dev eth0 `ip addr show dev eth0 | awk '/inet 192/ { print $2 ; exit }'`
-
-# adding ssh_key_file
-mkdir ~%s/.ssh || true
-cat <<EOF >~%s/.ssh/authorized_keys
-%s
-EOF
-""" % (self.login_as, self.login_as, open(self.ssh_public_key).read())
-
-        size = self.driver.list_sizes()[size_idx]
-
-        class Image:
-            id = image_id
-
-        class Network:
-            id = self.network_id
-            address = None
-
-        context = { 
-            'USERDATA': script.encode('hex'),
-            'IP_PUBLIC': '$NIC[IP]'
-        }
-        return self.startup({ 'size': size, 'image': Image, 
-                              'networks': Network, 'name': name,
-                              'context': context })
