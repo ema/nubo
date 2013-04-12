@@ -106,7 +106,9 @@ def list_(args):
     print table.draw()
 
 def start(args):
-    print get_cloud(args.cloudname)().deploy(args.imageid)
+    vm = get_cloud(args.cloudname)().deploy(args.imageid)
+    print "Instance %s available on %s. Public IP: %s" % (
+        vm['id'], args.cloudname, ', '.join(vm['public_ips']))
 
 def reboot(args):
     print get_cloud(args.cloudname)().reboot(args.vmid)
