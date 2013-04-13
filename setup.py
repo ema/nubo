@@ -5,8 +5,8 @@ An easy way to deploy Linux VMs on different cloud providers.
 
 Links
 `````
-* `documentation <http://pythonhosted.org/nubo>`_
-* `development version
+* `GitHub Repository <https://github.com/ema/nubo>`_
+* `Development Version
   <http://github.com/ema/nubo/zipball/master#egg=nubo-dev>`_
 """
 
