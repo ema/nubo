@@ -2,13 +2,19 @@
 nubo
 ----
 An easy way to deploy Linux VMs on different cloud providers.
+
+Links
+`````
+* `documentation <http://pythonhosted.org/nubo>`_
+* `development version
+  <http://github.com/ema/nubo/zipball/master#egg=nubo-dev>`_
 """
 
 from setuptools import setup
 
 setup(
     name='nubo',
-    version='0.2',
+    version='0.3',
     url='http://pythonhosted.org/nubo',
     license='BSD',
     author='Emanuele Rocca',
