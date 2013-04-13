@@ -8,8 +8,8 @@ from setuptools import setup
 
 setup(
     name='nubo',
-    version='0.1',
-    url='https://github.com/ema/nubo',
+    version='0.2',
+    url='http://pythonhosted.org/nubo',
     license='BSD',
     author='Emanuele Rocca',
     author_email='ema@linux.it',
