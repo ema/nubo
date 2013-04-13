@@ -3,13 +3,11 @@ Nubo
 
 .. module:: nubo
 
-A command line program which allows you to easily start and configure Linux
-virtual machines on different cloud providers. 
+`Nubo` is a command line program that allows you to start virtual machines on
+different cloud providers, also making sure you can SSH into those instances
+once they are available. 
 
-The goal of `nubo` is allowing you to start virtual machines on different cloud
-providers with one command, making sure you can SSH into those instances once
-they are available. As an example, you might want to start a new node on Amazon
-EC2::
+As an example, you might want to start a new node on Amazon EC2::
 
     $ nubo start EC2_EU_WEST ami-27013f53
     Instance i-4ea89004 available on EC2_EU_WEST. Public IP: 54.247.8.150
@@ -140,7 +138,7 @@ provider::
 API Reference
 -------------
 All `nubo` functionalities can be accessed via its Python API. Here is a brief
-example of how to start a new virtual machine::
+example of how to deploy a new virtual machine::
 
     from nubo.clouds.base import get_cloud
     
