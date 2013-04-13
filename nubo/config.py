@@ -11,6 +11,9 @@ def read_config():
 
 def write_config(values):
     old_values = read_config()
+
     updated = dict(old_values.items() + values.items())
     open(CONFFILE, 'w').write(json.dumps(updated, indent=4))
+
+    os.chmod(CONFFILE, 0600)
     return updated
