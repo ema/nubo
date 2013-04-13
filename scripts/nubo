@@ -49,7 +49,7 @@ def config(args):
     for what in Cloud.NEEDED_PARAMS:
         try:
             oldval = read_config()[CLOUDS_MAPPING[Cloud.PROVIDER_NAME]][what]
-        except IndexError:
+        except (IndexError, KeyError):
             oldval = ''
         values[what] = rlinput('Please provide your API %s: ' % what, oldval)
 
