@@ -180,7 +180,7 @@ class BaseCloud(object):
 
         'name', 'image', and 'size' are the lowest common denominator.
 
-        eg: startup(params) -> Node
+        eg: startup(params) -> dict
         """
         # Start a new VM and keep track of its ID
         node_id = node2dict(self.driver.create_node(**params))['id']
