@@ -33,9 +33,15 @@ class AmazonEC2(BaseCloud):
         do not care about kernels here, only about bootable VM images (AMIs).
 
         First, we get the list of available AMIs. Then, we search for the
-        user-specified keyword (if any)."""
+        user-specified keyword (if any). 
+
+        Only 20 results are returned by default to avoid flooding users with
+        too much output."""
         ami_images = [ image for image in self.driver.list_images() 
             if 'ami-' in image.id ]
+
+        if not limit:
+            limit = 20
 
         return [ image for image in ami_images 
             if (keyword.lower() in image.name.lower()) or not keyword ][:limit]

@@ -231,11 +231,15 @@ class BaseCloud(object):
         nodes."""
         return [ node2dict(node) for node in self.driver.list_nodes() ]
 
-    def list_images(self, limit=20, keyword=''):
+    def list_images(self, limit=None, keyword=''):
         """Return a list of VM images available on this cloud."""
         images = [ image for image in self.driver.list_images() 
             if (keyword.lower() in image.name.lower()) or not keyword ]
-        return images[:limit]
+
+        if limit:
+            return images[:limit]
+
+        return images
 
     def deploy(self, size_idx=0, location_idx=0, name='test'):
         """Deploy a VM instance on this cloud. This method is not implemented

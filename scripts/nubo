@@ -68,7 +68,7 @@ def clouds(args):
 def images(args):
     Cloud = get_cloud(args.cloudname)
 
-    images = Cloud().list_images(keyword=args.keyword)
+    images = Cloud().list_images(keyword=args.keyword, limit=args.limit)
 
     print len(images), "images available on", Cloud.PROVIDER_NAME
 
@@ -142,6 +142,8 @@ def main():
         help="list available images")
     parser_images.add_argument("cloudname", choices=supported_clouds())
     parser_images.add_argument("--keyword", default='')
+    parser_images.add_argument("--limit", default=0, type=int,
+        help='the number of images to display')
     parser_images.set_defaults(func=images)
     
     # start
