@@ -1,17 +1,49 @@
-nubo
+Nubo
 ====
 
 .. module:: nubo
 
-nubo is a command line program which allows you to start virtual machines on
-different cloud providers.
+A command line program which allows you to easily start and configure Linux
+virtual machines on different cloud providers. 
 
-Its functionalities are also available as a Python library.
+The goal of `nubo` is allowing you to start virtual machines on different cloud
+providers with one command, making sure you can SSH into those instances once
+they are available. As an example, you might want to start a new node on Amazon
+EC2::
+
+    $ nubo start EC2_EU_WEST ami-27013f53
+    Instance i-4ea89004 available on EC2_EU_WEST. Public IP: 54.247.8.150
+
+And then install puppet on it::
+
+    $ ssh root@54.247.8.150 "apt-get -y install puppet"
+    Warning: Permanently added '54.247.8.150' (RSA) to the list of known hosts.
+    Reading package lists...
+    Building dependency tree...
+    Reading state information...
+    The following extra packages will be installed:
+    [...]
+
+One of the biggest challenges when deploying virtual machines on multiple
+clouds is ensuring you can actually access those machines after they have
+started up. For example, different cloud providers allow you to upload your SSH
+public key in different ways. Certain providers automatically configure
+firewall rules which by default deny traffic to your instances. If your
+deployments need to be automated, your infrastructure code has to deal with
+that.
+
+`nubo` abstracts away these differences for you. It uses `Apache Libcloud`_ to
+start virtual machines on different cloud providers and `Paramiko`_ to
+establish SSH connections to the instances you start. Its functionalities are
+also available as a Python library.
+
+.. _Apache Libcloud: https://libcloud.apache.org/
+.. _Paramiko: http://www.lag.net/paramiko/
 
 Installation
 ------------
 
-Install the extension with one of the following commands::
+Install `nubo` with one of the following commands::
 
     $ pip install nubo
 
@@ -62,8 +94,7 @@ how we can configure one of the available cloud providers::
     Please provide your API secret: MYAPISECRET
     EC2_EU_WEST cloud configured properly
 
-To see which virtual machine images we have available, we can use `nubo
-images`::
+To see which virtual machine images are available, we can use `nubo images`::
     
     $ nubo images DIGITAL_OCEAN
     20 images available on DIGITAL_OCEAN
@@ -108,7 +139,49 @@ provider::
 
 API Reference
 -------------
+All `nubo` functionalities can be accessed via its Python API. Here is a brief
+example of how to start a new virtual machine::
 
-.. autoclass:: nubo
+    from nubo.clouds.base import get_cloud
+    
+    Cloud = get_cloud('EC2_EU_WEST')
+    ec2 = Cloud()
+
+    print ec2.deploy(image_id='ami-27013f53', name='my-new-vm')
+
+Please refer to the following API documentation for further details.
+
+.. automodule:: nubo.clouds.base
    :members:
 
+.. autoclass:: nubo.clouds.base.BaseCloud
+   :show-inheritance:
+   :members:
+
+.. automodule:: nubo.clouds.digitalocean
+   :members:
+
+.. autoclass:: nubo.clouds.digitalocean.DigitalOcean
+   :show-inheritance:
+   :members:
+
+.. automodule:: nubo.clouds.ec2
+   :members:
+
+.. autoclass:: nubo.clouds.ec2.AmazonEC2
+   :show-inheritance:
+   :members:
+
+.. automodule:: nubo.clouds.rackspace
+   :members:
+
+.. autoclass:: nubo.clouds.rackspace.Rackspace
+   :show-inheritance:
+   :members:
+
+.. automodule:: nubo.clouds.opennebula
+   :members:
+
+.. autoclass:: nubo.clouds.opennebula.OpenNebula
+   :show-inheritance:
+   :members:

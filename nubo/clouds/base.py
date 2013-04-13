@@ -77,9 +77,10 @@ def supported_clouds():
     return CLOUDS_MAPPING.keys()
 
 def get_cloud(cloud_name):
-    """Return the class representing the given provider.
+    """Return a class representing the given cloud provider.
 
-    get_cloud('OPENNEBULA') -> <class 'nubo.clouds.opennebula.OpenNebula'>
+    eg: get_cloud(cloud_name='EC2_US_WEST_OREGON') 
+            -> <class 'nubo.clouds.ec2.AmazonEC2'>
     """
     # fullname = [ 'nubo', 'clouds', 'ec2', 'EC2Cloud' ]
     fullname = CLOUDS_MAPPING[cloud_name].split('.')
@@ -195,6 +196,7 @@ class BaseCloud(object):
         return node
 
     def is_running(self, node_id):
+        """Return True if the given node is running."""
         running_ids = [
             node2dict(node)['id'] for node in self.driver.list_nodes() 
         ]
@@ -225,12 +227,18 @@ class BaseCloud(object):
         return self.__call_if_running(self.driver.reboot_node, node_id)
 
     def list_nodes(self):
+        """Return a list of dictionaries representing currently running
+        nodes."""
         return [ node2dict(node) for node in self.driver.list_nodes() ]
 
     def list_images(self, limit=20, keyword=''):
+        """Return a list of VM images available on this cloud."""
         images = [ image for image in self.driver.list_images() 
             if (keyword.lower() in image.name.lower()) or not keyword ]
         return images[:limit]
 
     def deploy(self, size_idx=0, location_idx=0, name='test'):
+        """Deploy a VM instance on this cloud. This method is not implemented
+        here, it has to be specialized by the classes implementing specific cloud
+        providers."""
         raise NotImplementedError()
