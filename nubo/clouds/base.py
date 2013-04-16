@@ -136,7 +136,7 @@ class BaseCloud(object):
         try:
             provider = getattr(Provider, self.PROVIDER_NAME)
         except AttributeError:
-            raise Exception, "Unknown cloud %s" % PROVIDER_NAME
+            raise Exception, "Unknown cloud %s" % self.PROVIDER_NAME
 
         DriverClass = get_driver(provider)
         self.driver = DriverClass(
