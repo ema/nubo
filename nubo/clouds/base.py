@@ -22,6 +22,8 @@ from os.path import join
 from libcloud.compute.types import Provider, InvalidCredsError
 from libcloud.compute.providers import get_driver
 
+import paramiko
+
 from nubo.config import read_config
 from nubo.remote import RemoteHost
 
@@ -172,6 +174,11 @@ class BaseCloud(object):
 
                 time.sleep(1)
                 attempts -= 1
+            except paramiko.PasswordRequiredException:
+                msg = 'Authentication failed for %s@%s. ' % (
+                    self.login_as, node['id'])
+                msg += 'Perhaps you should login as a different user?'
+                raise Exception(msg)
 
     def startup(self, params):
         """Start a new instance.
