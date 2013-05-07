@@ -12,6 +12,18 @@ Links
 
 from setuptools import setup
 
+install_requires = [ 
+        'setuptools', 
+        'apache-libcloud', 
+        'paramiko', 
+        'texttable' 
+]
+
+try:
+    import importlib
+except ImportError:
+    install_requires.append('importlib')
+
 setup(
     name='nubo',
     version='0.4',
@@ -21,12 +33,7 @@ setup(
     author_email='ema@linux.it',
     description='Virtual Machine deployments on multiple cloud providers',
     long_description=__doc__,
-    install_requires=[ 
-        'setuptools', 
-        'apache-libcloud', 
-        'paramiko', 
-        'texttable' 
-    ],
+    install_requires=install_requires,
     packages=['nubo', 'nubo.clouds'],
     scripts=['scripts/nubo'],
     classifiers=[
