@@ -161,7 +161,7 @@ class BaseCloud(object):
             time.sleep(1)
             attempts -= 1
 
-    def __wait_for_ssh(self, node):
+    def wait_for_ssh(self, node):
         attempts = self.MAX_ATTEMPTS
         remotehost = RemoteHost(node['public_ips'][0], self.ssh_private_key)
 
@@ -197,7 +197,7 @@ class BaseCloud(object):
         assert node is not None
 
         # Wait for SSH connections to be accepted
-        user = self.__wait_for_ssh(node)
+        user = self.wait_for_ssh(node)
         assert user == self.login_as
 
         return node
