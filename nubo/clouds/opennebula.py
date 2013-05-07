@@ -17,7 +17,7 @@ class OpenNebula(BaseCloud):
     PROVIDER_NAME = 'OPENNEBULA'
     NEEDED_PARAMS = [ 'key', 'secret', 'host', 'port', 'network_id', 'api_version' ]
 
-    def __init__(self, ssh_private_key=None):
+    def __init__(self, ssh_private_key=None, login_as='root'):
         self.network_id = AVAILABLE_CLOUDS[
             CLOUDS_MAPPING['OPENNEBULA']].pop('network_id')
         BaseCloud.__init__(self, ssh_private_key)

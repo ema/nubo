@@ -7,6 +7,9 @@ from nubo.clouds.opennebula import OpenNebula
 
 import unittest
 
+from os import getenv
+from os.path import join
+
 class DummyCloud(base.BaseCloud):
     """Dummy cloud using the DUMMY libcloud provider"""
     PROVIDER_NAME = 'DUMMY'
@@ -57,6 +60,10 @@ class BaseCloudTest(unittest.TestCase):
 
         self.assertEquals(dict, type(new_node))
         self.assertEquals('RUNNING', new_node['state'])
+
+    def test_startup_privkey(self):
+        cloud = self.Cloud(ssh_private_key=join(getenv('HOME'), '.ssh', 'id_rsa'))
+        self.assertEquals('RUNNING', cloud.startup({})['state'])
 
     def test_is_running(self):
         cloud = self.Cloud()

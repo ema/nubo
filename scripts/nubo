@@ -106,7 +106,11 @@ def list_(args):
     print table.draw()
 
 def start(args):
-    vm = get_cloud(args.cloudname)(login_as=args.user).deploy(args.imageid)
+    Cloud = get_cloud(args.cloudname)
+
+    vm = Cloud(ssh_private_key=args.privkey, login_as=args.user).deploy(
+        args.imageid)
+
     print "Instance %s available on %s. Login as %s@%s" % (
         vm['id'], args.cloudname, args.user, ', '.join(vm['public_ips']))
 
@@ -124,7 +128,8 @@ def main():
     subparsers = arger.add_subparsers()
     
     # config
-    parser_config = subparsers.add_parser("config", help="set your cloud credentials")
+    parser_config = subparsers.add_parser("config", 
+        help="set your cloud credentials")
     parser_config.set_defaults(func=config)
 
     # clouds
@@ -151,6 +156,7 @@ def main():
     parser_start.add_argument("cloudname", choices=supported_clouds())
     parser_start.add_argument("imageid")
     parser_start.add_argument("--user", default='root')
+    parser_start.add_argument("--privkey", default=None)
     parser_start.set_defaults(func=start)
 
     # reboot
