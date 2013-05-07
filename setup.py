@@ -14,7 +14,7 @@ from setuptools import setup
 
 setup(
     name='nubo',
-    version='0.3',
+    version='0.4',
     url='http://pythonhosted.org/nubo',
     license='BSD',
     author='Emanuele Rocca',
