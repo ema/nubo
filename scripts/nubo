@@ -115,10 +115,12 @@ def start(args):
         vm['id'], args.cloudname, args.user, ', '.join(vm['public_ips']))
 
 def reboot(args):
-    print get_cloud(args.cloudname)().reboot(args.vmid)
+    if get_cloud(args.cloudname)().reboot(args.vmid):
+        print args.vmid, "rebooted"
 
 def delete(args):
-    print get_cloud(args.cloudname)().shutdown(args.vmid)
+    if get_cloud(args.cloudname)().shutdown(args.vmid):
+        print args.vmid, "deleted"
 
 def main():
     arger = argparse.ArgumentParser(
