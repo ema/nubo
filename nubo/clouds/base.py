@@ -64,7 +64,7 @@ def node2dict(node):
     values['state'] = NODE_STATES[values['state']]
 
     for field in 'image', 'size':
-        if 'field' in values and values[field]:
+        if field in values and values[field]:
             values[field] = values[field].name
 
     for field in 'public_ips', 'private_ips':
