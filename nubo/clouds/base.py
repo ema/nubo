@@ -238,6 +238,11 @@ class BaseCloud(object):
         nodes."""
         return [ node2dict(node) for node in self.driver.list_nodes() ]
 
+    def list_sizes(self):
+        """Return a list of strings representing the available instance
+        size names."""
+        return [ size.name for size in self.driver.list_sizes() ]
+
     def list_images(self, limit=None, keyword=''):
         """Return a list of VM images available on this cloud."""
         images = [ image for image in self.driver.list_images() 

@@ -106,5 +106,10 @@ class BaseCloudTest(unittest.TestCase):
         self.assertEquals('Ubuntu 9.04', images[1].name)
         self.assertEquals('Slackware 4', images[2].name)
 
+    def test_list_sizes(self):
+        sizes = self.cloud.list_sizes()
+        expected = [ 'Small', 'Medium', 'Big', 'XXL Big']
+        self.assertEquals(expected, sizes)
+
 if __name__ == "__main__":
     unittest.main()

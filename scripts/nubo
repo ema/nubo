@@ -84,6 +84,12 @@ def images(args):
     table.add_rows(rows)
     print table.draw()
 
+def sizes(args):
+    Cloud = get_cloud(args.cloudname)
+
+    for idx, name in enumerate(Cloud().list_sizes()):
+        print idx, name
+
 def list_(args):
     Cloud = get_cloud(args.cloudname)
 
@@ -152,6 +158,12 @@ def main():
     parser_images.add_argument("--limit", default=0, type=int,
         help='the number of images to display')
     parser_images.set_defaults(func=images)
+
+    # sizes
+    parser_sizes = subparsers.add_parser("sizes", 
+        help="list available instance sizes")
+    parser_sizes.add_argument("cloudname", choices=supported_clouds())
+    parser_sizes.set_defaults(func=sizes)
     
     # start
     parser_start = subparsers.add_parser("start", help="start a new VM")
