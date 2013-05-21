@@ -26,7 +26,7 @@ except ImportError:
 
 setup(
     name='nubo',
-    version='0.4',
+    version='0.5',
     url='http://pythonhosted.org/nubo',
     license='BSD',
     author='Emanuele Rocca',
