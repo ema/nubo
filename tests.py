@@ -90,10 +90,6 @@ class BaseCloudTest(unittest.TestCase):
 
         self.assertEquals('root', self.cloud.login_as)
 
-    def test_init_no_private_key(self):
-        self.cloud = self.CloudClass()
-        self.failUnless(self.cloud.ssh_public_key.endswith('.pub'))
-
     def test_init_wrong_provider_name(self):
         self.CloudClass.PROVIDER_NAME = 'WRONG_PROVIDER'
         self.assertRaises(Exception, self.CloudClass)
@@ -168,7 +164,7 @@ class BaseCloudTest(unittest.TestCase):
 
     def test_deploy_on_base_class(self):
         base.BaseCloud.PROVIDER_NAME = 'DUMMY'
-        cloud = base.BaseCloud()
+        cloud = base.BaseCloud(ssh_private_key=self.privkey)
         self.assertRaises(NotImplementedError, cloud.deploy)
 
 if __name__ == "__main__":
