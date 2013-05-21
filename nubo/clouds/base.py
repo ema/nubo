@@ -253,8 +253,8 @@ class BaseCloud(object):
 
         return images
 
-    def deploy(self, size_idx=0, location_idx=0, name='test'):
+    def deploy(self, image_id, size_idx=0, location_idx=0, name='test'):
         """Deploy a VM instance on this cloud. This method is not implemented
-        here, it has to be specialized by the classes implementing specific cloud
-        providers."""
+        here, it has to be specialized by the classes implementing specific 
+        cloud providers."""
         raise NotImplementedError()

@@ -165,7 +165,7 @@ class BaseCloudTest(unittest.TestCase):
     def test_deploy_on_base_class(self):
         base.BaseCloud.PROVIDER_NAME = 'DUMMY'
         cloud = base.BaseCloud(ssh_private_key=self.privkey)
-        self.assertRaises(NotImplementedError, cloud.deploy)
+        self.assertRaises(NotImplementedError, cloud.deploy, [''])
 
 if __name__ == "__main__":
     unittest.main()
