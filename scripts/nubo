@@ -119,7 +119,7 @@ def start(args):
     Cloud = get_cloud(args.cloudname)
 
     vm = Cloud(ssh_private_key=args.privkey, login_as=args.user).deploy(
-        args.imageid)
+        image_id=args.imageid, size_idx=args.sizeid)
 
     print "Instance %s available on %s. Login as %s@%s" % (
         vm['id'], args.cloudname, args.user, ', '.join(vm['public_ips']))
@@ -175,6 +175,7 @@ def main():
     parser_start.add_argument("imageid")
     parser_start.add_argument("--user", default='root')
     parser_start.add_argument("--privkey", default=None)
+    parser_start.add_argument("--sizeid", default=0, type=int)
     parser_start.set_defaults(func=start)
 
     # reboot
