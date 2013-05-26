@@ -17,9 +17,6 @@ from os.path import join
 class DummyCloud(base.BaseCloud):
     """Dummy cloud using the DUMMY libcloud provider"""
     PROVIDER_NAME = 'DUMMY'
-
-    def wait_for_ssh(self, node):
-        return 'root'
     
 class BaseTest(unittest.TestCase):
 
@@ -95,6 +92,10 @@ class BaseCloudTest(unittest.TestCase):
         self.assertRaises(Exception, self.CloudClass)
 
     def test_startup(self):
+        # Patching RemoteHost.run_command: we do not want to actually ssh into
+        # the fake server
+        remote.RemoteHost.run_command = lambda x, y, z: ('root', '')
+
         new_node = self.cloud.startup({})
 
         self.assertEquals(dict, type(new_node))
