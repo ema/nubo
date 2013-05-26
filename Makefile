@@ -8,6 +8,7 @@ all:
 	@echo "make install - Install on local system"
 	@echo "make clean - Get rid of scratch and byte files"
 	@echo "make test - Run unit tests and generate coverage report"
+	@echo "make upload - Build and upload a new version to pypi"
 
 source:
 	$(PYTHON) setup.py sdist 
@@ -23,3 +24,6 @@ clean:
 test:
 	$(COVERAGE) run --source=nubo tests.py
 	$(COVERAGE) report -m
+
+upload:
+	$(PYTHON) setup.py sdist bdist_egg upload
