@@ -6,7 +6,9 @@ from nubo import remote
 from nubo.clouds import base
 
 from nubo.clouds.ec2 import AmazonEC2
+from nubo.clouds.rackspace import Rackspace
 from nubo.clouds.opennebula import OpenNebula
+from nubo.clouds.digitalocean import DigitalOcean
 
 import unittest
 import tempfile
@@ -26,14 +28,16 @@ class BaseTest(unittest.TestCase):
         for cloud in base.supported_clouds():
             self.assertEquals(str, type(cloud))
 
+    def __test_get_cloud(self, provider_name, cloud_class):
+        cloud = base.get_cloud(provider_name)
+        self.assertEquals(cloud_class, cloud)
+        self.assertEquals(provider_name, cloud.PROVIDER_NAME)
+        
     def test_get_cloud(self):
-        ec2 = base.get_cloud('EC2_AP_SOUTHEAST2')
-        self.assertEquals(AmazonEC2, ec2)
-        self.assertEquals('EC2_AP_SOUTHEAST2', ec2.PROVIDER_NAME)
-
-        one = base.get_cloud('OPENNEBULA')
-        self.assertEquals(OpenNebula, one)
-        self.assertEquals('OPENNEBULA', one.PROVIDER_NAME)
+        self.__test_get_cloud('EC2_AP_SOUTHEAST2', AmazonEC2)
+        self.__test_get_cloud('OPENNEBULA', OpenNebula)
+        self.__test_get_cloud('DIGITAL_OCEAN', DigitalOcean)
+        self.__test_get_cloud('RACKSPACE', Rackspace)
 
     def test_read_config(self):
         self.assertEquals(dict, type(config.read_config()))
