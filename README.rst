@@ -1,6 +1,9 @@
 Nubo
 ====
 
+.. image:: https://secure.travis-ci.org/ema/nubo.png?branch=master
+   :target: http://travis-ci.org/ema/nubo 
+
 .. module:: nubo
 
 `Nubo` is a command line program that allows you to start virtual machines on
