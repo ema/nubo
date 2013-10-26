@@ -38,6 +38,7 @@ CLOUDS_MAPPING = {
     'RACKSPACE':          'nubo.clouds.rackspace.Rackspace',
     'RACKSPACE_UK':       'nubo.clouds.rackspace.Rackspace',
     'DIGITAL_OCEAN':      'nubo.clouds.digitalocean.DigitalOcean',
+    'LINODE':             'nubo.clouds.linode.Linode',
     'OPENNEBULA':         'nubo.clouds.opennebula.OpenNebula',
 }
 
