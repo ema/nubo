@@ -52,6 +52,10 @@ Alternatively, use `easy_install`::
 
     $ easy_install nubo
 
+You need to have `ca-certificates`_ installed on your system.
+
+.. _ca-certificates: https://wiki.apache.org/incubator/LibcloudSSL#Enabling_SSL_Certificate_Check
+
 Usage
 -----
 
