@@ -9,6 +9,7 @@ from nubo.clouds.ec2 import AmazonEC2
 from nubo.clouds.rackspace import Rackspace
 from nubo.clouds.opennebula import OpenNebula
 from nubo.clouds.digitalocean import DigitalOcean
+from nubo.clouds.linode import Linode
 
 import unittest
 import tempfile
