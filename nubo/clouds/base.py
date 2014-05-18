@@ -9,6 +9,7 @@
     :copyright: (C) 2013 by Emanuele Rocca.
 """
 
+import sys
 import time
 import socket
 import logging
@@ -79,12 +80,21 @@ def node2dict(node):
 def supported_clouds():
     return CLOUDS_MAPPING.keys()
 
-def get_cloud(cloud_name):
+def get_cloud(cloud_name=None):
     """Return a class representing the given cloud provider.
 
     eg: get_cloud(cloud_name='EC2_US_WEST_OREGON') 
             -> <class 'nubo.clouds.ec2.AmazonEC2'>
     """
+    if cloud_name is None:
+        cloud_name = getenv('NUBO_CLOUD')
+
+    if cloud_name not in supported_clouds():
+        print "E: The NUBO_CLOUD environment variable should be set to one of the following values:"
+        print ", ".join(supported_clouds())
+        sys.exit(1)
+
+
     # fullname = [ 'nubo', 'clouds', 'ec2', 'EC2Cloud' ]
     fullname = CLOUDS_MAPPING[cloud_name].split('.')
 

@@ -12,7 +12,8 @@ once they are available.
 
 As an example, you might want to start a new node on Amazon EC2::
 
-    $ nubo start EC2_EU_WEST ami-27013f53
+    $ export NUBO_CLOUD=EC2_EU_WEST
+    $ nubo start ami-27013f53
     Instance i-4ea89004 available on EC2_EU_WEST. Public IP: 54.247.8.150
 
 And then install puppet on it::
@@ -101,7 +102,7 @@ how we can configure one of the available cloud providers::
 
 To see which virtual machine images are available, we can use `nubo images`::
     
-    $ nubo images DIGITAL_OCEAN
+    $ NUBO_CLOUD=DIGITAL_OCEAN nubo images
     20 images available on DIGITAL_OCEAN
      id              name           
     ===============================

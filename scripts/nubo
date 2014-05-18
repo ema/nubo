@@ -10,6 +10,7 @@
     :copyright: (C) 2013 by Emanuele Rocca.
 """
 
+import os
 import sys
 import argparse
 import readline
@@ -72,7 +73,7 @@ def clouds(args):
         print cl
 
 def images(args):
-    Cloud = get_cloud(args.cloudname)
+    Cloud = get_cloud()
 
     images = Cloud().list_images(keyword=args.keyword, limit=args.limit)
 
@@ -88,7 +89,7 @@ def images(args):
     print_table(rows)
 
 def sizes(args):
-    Cloud = get_cloud(args.cloudname)
+    Cloud = get_cloud()
 
     rows = [ [ 'id', 'name', ] ]
 
@@ -98,7 +99,7 @@ def sizes(args):
     print_table(rows)
 
 def list_(args):
-    Cloud = get_cloud(args.cloudname)
+    Cloud = get_cloud()
 
     nodes = Cloud().list_nodes()
     print len(nodes), "VMs running on", Cloud.PROVIDER_NAME
@@ -116,7 +117,7 @@ def list_(args):
     print_table(rows)
 
 def start(args):
-    CloudClass = get_cloud(args.cloudname)
+    CloudClass = get_cloud()
     
     cloud = CloudClass(ssh_private_key=args.privkey, login_as=args.user)
 
@@ -124,14 +125,14 @@ def start(args):
         name=args.name)
 
     print "Instance %s available on %s. Login as %s@%s" % (
-        vm['id'], args.cloudname, args.user, ', '.join(vm['public_ips']))
+        vm['id'], os.getenv('NUBO_CLOUD'), args.user, ', '.join(vm['public_ips']))
 
 def reboot(args):
-    if get_cloud(args.cloudname)().reboot(args.vmid):
+    if get_cloud()().reboot(args.vmid):
         print args.vmid, "rebooted"
 
 def delete(args):
-    if get_cloud(args.cloudname)().shutdown(args.vmid):
+    if get_cloud()().shutdown(args.vmid):
         print args.vmid, "deleted"
 
 def main():
@@ -153,13 +154,11 @@ def main():
 
     # list
     parser_list = subparsers.add_parser("list", help="list running VMs")
-    parser_list.add_argument("cloudname", choices=supported_clouds())
     parser_list.set_defaults(func=list_)
 
     # images
     parser_images = subparsers.add_parser("images", 
         help="list available images")
-    parser_images.add_argument("cloudname", choices=supported_clouds())
     parser_images.add_argument("--keyword", default='')
     parser_images.add_argument("--limit", default=0, type=int,
         help='the number of images to display')
@@ -168,12 +167,10 @@ def main():
     # sizes
     parser_sizes = subparsers.add_parser("sizes", 
         help="list available instance sizes")
-    parser_sizes.add_argument("cloudname", choices=supported_clouds())
     parser_sizes.set_defaults(func=sizes)
     
     # start
     parser_start = subparsers.add_parser("start", help="start a new VM")
-    parser_start.add_argument("cloudname", choices=supported_clouds())
     parser_start.add_argument("imageid")
     parser_start.add_argument("--user", default='root')
     parser_start.add_argument("--privkey", default=None)
@@ -183,13 +180,11 @@ def main():
 
     # reboot
     parser_reboot = subparsers.add_parser("reboot", help="reboot a given VM")
-    parser_reboot.add_argument("cloudname", choices=supported_clouds())
     parser_reboot.add_argument("vmid")
     parser_reboot.set_defaults(func=reboot)
 
     # delete
     parser_delete = subparsers.add_parser("delete", help="delete a given VM")
-    parser_delete.add_argument("cloudname", choices=supported_clouds())
     parser_delete.add_argument("vmid")
     parser_delete.set_defaults(func=delete)
 
