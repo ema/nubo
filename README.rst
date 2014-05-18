@@ -102,7 +102,8 @@ how we can configure one of the available cloud providers::
 
 To see which virtual machine images are available, we can use `nubo images`::
     
-    $ NUBO_CLOUD=DIGITAL_OCEAN nubo images
+    $ export NUBO_CLOUD=DIGITAL_OCEAN
+    $ nubo images
     20 images available on DIGITAL_OCEAN
      id              name           
     ===============================
@@ -131,13 +132,13 @@ New virtual machine instances can be started with `nubo start`. Note that the
 command will not return until the remote machine has finished booting up and
 it accepts SSH connections::
 
-    $ nubo start DIGITAL_OCEAN 12573
+    $ nubo start 12573
     Instance 150843 available on DIGITAL_OCEAN. Public IP: 198.199.72.211
 
 With `nubo list` we can see the status of our virtual machines on a given cloud
 provider::
      
-    $ nubo list DIGITAL_OCEAN 
+    $ nubo list
     1 VMs running on DIGITAL_OCEAN
       id     name    state          ip       
     ========================================
