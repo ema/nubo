@@ -26,7 +26,7 @@ except ImportError:
 
 setup(
     name='nubo',
-    version='0.6',
+    version='0.7',
     url='http://pythonhosted.org/nubo',
     license='BSD',
     author='Emanuele Rocca',
@@ -46,5 +46,5 @@ setup(
         'Topic :: Internet',
         'Topic :: System',
     ],
-    keywords='cloud vm startup devops ec2 rackspace',
+    keywords='cloud vm startup devops ec2 rackspace linode',
 )
