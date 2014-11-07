@@ -50,7 +50,7 @@ NODE_STATES = {
     4: 'UNKNOWN'
 }
 
-CONFIG = read_config()
+AVAILABLE_CLOUDS = read_config()
 
 
 def resolvepath(s):
@@ -138,7 +138,7 @@ class BaseCloud(object):
 
     def __init__(self, ssh_private_key=None, login_as='root'):
         if ssh_private_key is None:
-            ssh_private_key = resolvepath(CONFIG["nubo"]["privkey"])
+            ssh_private_key = resolvepath(AVAILABLE_CLOUDS["nubo"]["privkey"])
 
         self.ssh_private_key = ssh_private_key
         self.ssh_public_key = ssh_private_key + '.pub'
@@ -157,7 +157,7 @@ class BaseCloud(object):
 
         DriverClass = get_driver(provider)
         self.driver = DriverClass(
-            **CONFIG[CLOUDS_MAPPING[self.PROVIDER_NAME]])
+            **AVAILABLE_CLOUDS[CLOUDS_MAPPING[self.PROVIDER_NAME]])
 
     def __wait_for_node(self, node_id):
         attempts = self.MAX_ATTEMPTS
