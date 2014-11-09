@@ -17,8 +17,7 @@ import hashlib
 
 from importlib import import_module
 
-from os import getenv
-from os.path import join
+from os import getenv, path
 
 from libcloud.compute.types import Provider, InvalidCredsError
 from libcloud.compute.providers import get_driver
@@ -52,6 +51,11 @@ NODE_STATES = {
 }
 
 AVAILABLE_CLOUDS = read_config()
+
+
+def resolvepath(s):
+    return path.abspath(path.expanduser(s))
+
 
 def node2dict(node):
     """Convert a node object into a dict"""
@@ -134,7 +138,7 @@ class BaseCloud(object):
 
     def __init__(self, ssh_private_key=None, login_as='root'):
         if ssh_private_key is None:
-            ssh_private_key = join(getenv('HOME'), '.ssh', 'id_rsa')
+            ssh_private_key = resolvepath(AVAILABLE_CLOUDS["nubo"]["privkey"])
 
         self.ssh_private_key = ssh_private_key
         self.ssh_public_key = ssh_private_key + '.pub'

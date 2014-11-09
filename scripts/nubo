@@ -20,10 +20,12 @@ from nubo.clouds.base import supported_clouds, get_cloud, CLOUDS_MAPPING
 
 from texttable import Texttable
 
-def rlinput(prompt, prefill=''):
+def rlinput(prompt, prefill='', default=None):
     readline.set_startup_hook(lambda: readline.insert_text(prefill))
     try:
-        return raw_input(prompt)
+        prompt = "{} [Default: {}]:".format(prompt, default or "")
+
+        return raw_input(prompt) or default
     except (KeyboardInterrupt, EOFError):
         print
         sys.exit(0)
@@ -60,8 +62,18 @@ def config(args):
             oldval = ''
         values[what] = rlinput('Please provide your API %s: ' % what, oldval)
 
+    privkey = rlinput(
+        "Please enter the location of your Private SSH Key",
+        default="~/.ssh/id_rsa"
+    )
+
     if Cloud.test_conn(**values):
-        write_config({ CLOUDS_MAPPING[Cloud.PROVIDER_NAME]: values })
+        write_config({
+            CLOUDS_MAPPING[Cloud.PROVIDER_NAME]: values,
+            "nubo": {
+                "privkey": privkey
+            }
+        })
         print Cloud.PROVIDER_NAME, "cloud configured properly" 
         return
     else:
