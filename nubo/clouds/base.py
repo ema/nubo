@@ -36,7 +36,6 @@ CLOUDS_MAPPING = {
     'EC2_AP_NORTHEAST':   'nubo.clouds.ec2.AmazonEC2', 
     'EC2_EU_WEST':        'nubo.clouds.ec2.AmazonEC2',
     'RACKSPACE':          'nubo.clouds.rackspace.Rackspace',
-    'RACKSPACE_UK':       'nubo.clouds.rackspace.Rackspace',
     'DIGITAL_OCEAN':      'nubo.clouds.digitalocean.DigitalOcean',
     'LINODE':             'nubo.clouds.linode.Linode',
     'OPENNEBULA':         'nubo.clouds.opennebula.OpenNebula',
